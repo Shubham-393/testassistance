@@ -45,25 +45,25 @@ Follow these steps to **set up project locally**:
 
 ### 1️⃣ Clone the Repository
 
-`git clone https://github.com/Shubham-393/testassistance.git
-cd testassistance `
+`git clone https://github.com/Shubham-393/testassistance.git`
+`cd testassistance `
 
 ### 2️⃣ Create and Activate Virtual Environment
 
-`python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate`
+`python3 -m venv .venv`
+`source .venv/bin/activate  # On Windows: .venv\Scripts\activate`
 
 ### 3️⃣ Install Dependencies
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 ### 4️⃣ Apply Migrations
 
-python manage.py migrate
+`python manage.py migrate`
 
 ### 5️⃣ Run the Development Server
 
-python manage.py runserver
+`python manage.py runserver`
 Your project is now running at:
 🔗 http://127.0.0.1:8000/core/
 
@@ -97,13 +97,13 @@ Contributions are welcome! Follow these steps to contribute:
 Fork the Repository.  
 
 Create a New Branch:  
-git checkout -b feature-branch-name  
+`git checkout -b feature-branch-name  `
 
 Commit Your Changes:  
-git commit -m 'Add new feature'  
+`git commit -m 'Add new feature' ` 
 
 Push to GitHub:  
-git push origin feature-branch-name  
+`git push origin feature-branch-name  `
 
 Create a Pull Request.
 
