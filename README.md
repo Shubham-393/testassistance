@@ -8,8 +8,11 @@
 ## 🌟 Features
 
 ✅ **User Authentication**: Secure login and registration system.
+
 ✅ **Test Creation**: Educators can create and customize tests with various question types.
+
 ✅ **Real-time Grading**: Automatic grading system providing immediate feedback.
+
 ✅ **Analytics Dashboard**: Visual representation of test results and performance metrics.  
 
 ---
@@ -42,13 +45,13 @@ Follow these steps to **set up project locally**:
 
 ### 1️⃣ Clone the Repository
 
-git clone https://github.com/Shubham-393/testassistance.git
-cd testassistance
+`git clone https://github.com/Shubham-393/testassistance.git
+cd testassistance `
 
 ### 2️⃣ Create and Activate Virtual Environment
 
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+`python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate`
 
 ### 3️⃣ Install Dependencies
 
