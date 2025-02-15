@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Adjust chart card styles because glassmorphism is used */
+    .chart-card {
+        
+        min-height: 250px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 12px;
+        background: rgba(242, 153, 108, 0.99);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: background 0.3s ease;
+    }
+    .chart-card:hover {
+        background: rgba(252, 177, 131, 0.99); /* Example hover background */
+    }
+    .chart-canvas {
+        max-height: 220px;
+    }
+  </style>
+<div class="container">
+    <!-- Exam Results Title -->
+    <div class="hero text-center mb-5">
+        <h2 class="display-4 font-weight-bold">Exam Results: {{ attempt.exam.title }}</h2>
+        <p class="lead">Subject: <strong>{{ attempt.exam.subject }}</strong></p>
+        <p class="lead">Score: <strong>{{ attempt.score }}</strong> / <strong>{{ attempt.exam.questions.all|length }}</strong></p>
+        
+        <!-- Correct & Incorrect Answers Summary -->
+        <p>Correct Answers: {{ correct_count }}</p>
+        <p>Incorrect Answers: {{ incorrect_count }}</p>
+    </div>
+
+    
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Pie Chart: Correct vs Incorrect -->
+        <div class="col-md-6 mb-3">
+            <div class="card chart-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-3">Correct vs Incorrect</h3>
+                    <canvas id="pieChart" class="chart-canvas"></canvas>
+                </div>
+                <div class="card-footer text-center">
+                    <p>{{ percent_correct }}% correct</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bar Chart: AI Score per Question -->
+        <div class="col-md-6 mb-3">
+            <div class="card chart-card">
+                <div class="card-body text-center">
+                    <h3 class="mb-3">AI Score Per Question</h3>
+                    <canvas id="barChart" class="chart-canvas"></canvas>
+                </div>
+                <div class="card-footer text-center">
+                    <p>Average AI Score: {{ average_ai_score }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Answer Review -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="mb-3">Answer Review</h3>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Your Answer</th>
+                        <th>Correct Answer</th>
+                        <th>AI Score</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for answer in answers %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ answer.question.text }}</td>
+                            <td>{{ answer.student_response }}</td>
+                            <td>{{ answer.question.correct_answer }}</td>
+                            <td>{{ answer.obtained_marks }} / {{ answer.question.marks }}</td>
+                            <td>
+                                {% if answer.is_correct %}
+                                    <span class="text-success">✔ Correct</span>
+                                {% else %}
+                                    <span class="text-danger">❌ Incorrect</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AI Feedback -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="mb-3">AI Feedback</h3>
+            <p>{{ feedback }}</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'index' %}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Data from Django context (Ensure correct JavaScript formatting)
+        var correctAnswers = parseInt("{{ correct_count }}");
+        var incorrectAnswers = parseInt("{{ incorrect_count }}");
+
+        
+        // Parse the JSON strings passed from the view
+    var questionLabels = JSON.parse('{{ question_texts|escapejs }}');
+    var aiScores = JSON.parse('{{ ai_scores|escapejs }}');
+
+    console.log("Question Labels:", questionLabels);
+    console.log("AI Scores:", aiScores);
+
+        // Pie Chart (Correct vs Incorrect)
+        var ctx1 = document.getElementById("pieChart").getContext("2d");
+        new Chart(ctx1, {
+            type: "pie",
+            data: {
+                labels: ["Correct", "Incorrect"],
+                datasets: [{
+                    data: [correctAnswers, incorrectAnswers],
+                    backgroundColor: ["#28a745", "#dc3545"],
+                }]
+            }
+        });
+
+        // Bar Chart (AI Score per Question)
+        var ctx2 = document.getElementById("barChart").getContext("2d");
+        new Chart(ctx2, {
+            type: "bar",
+            data: {
+                labels: questionLabels,
+                datasets: [{
+                    label: "AI Score",
+                    data: aiScores,
+                    backgroundColor: "#007bff"
+                }]
+            }
+        });
+    });
+</script>
+
+
+
+{% endblock %}
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Exam Results Title -->
+    <div class="hero text-center mb-5">
+        <h2 class="display-4 font-weight-bold">Exam Results: {{ attempt.exam.title }}</h2>
+        <p class="lead">Subject: <strong>{{ attempt.exam.subject }}</strong></p>
+        <p class="lead">Score: <strong>{{ attempt.score }}</strong> / <strong>{{ attempt.exam.questions.all|length }}</strong></p>
+    </div>
+
+    <!-- Answer Review -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="mb-3">Answer Review</h3>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Your Answer</th>
+                        <th>Correct Answer</th>
+                        <th>AI Score</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for answer in answers %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ answer.question.text }}</td>
+                            <td>{{ answer.student_response }}</td>
+                            <td>{{ answer.question.correct_answer }}</td>
+                            <td>{{ answer.obtained_marks }} / {{ answer.question.marks }}</td>
+                            <td>
+                                {% if answer.is_correct %}
+                                    <span class="text-success">✔ Correct</span>
+                                {% else %}
+                                    <span class="text-danger">❌ Incorrect</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AI Feedback -->
+    <div class="card">
+        <div class="card-body">
+            <h3 class="mb-3">AI Feedback</h3>
+            <p>{{ feedback }}</p>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mt-4 text-center">
+        <a href="{% url 'index' %}" class="btn btn-secondary">Back to Home</a>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <!-- Exam Title and Info -->
+    <div class="hero text-center mb-5">
+        <h2 class="display-4 font-weight-bold"  >{{ exam.title }}</h2>
+        <p class="lead">Subject: <strong>{{ exam.subject }}</strong></p>
+        <p class="lead">Topic: <strong>{{ exam.topic }}</strong></p>
+        <p class="lead">Type: <strong>{{ exam.type }}</strong></p>
+    </div>
+
+    <!-- Questions List -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="mb-3">Questions:</h3>
+            <ul class="list-group list-group-flush">
+                {% for question in questions %}
+                    <li class="list-group-item">
+                        <strong>Q{{ forloop.counter }}:</strong> {{ question.text }}
+                        <br>
+                        <small><b>Correct Answer:</b> {{ question.correct_answer }}</small>
+                        <br>
+                        <div class="mt-2">
+                            {% if question.question_type == "MCQ" %}
+                                <b>Options:</b>
+                                <ul>
+                                    {% for option in question.options %}
+                                        <li>{{ option }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+
+                        <!-- Edit Button (Only for Teachers) -->
+                        
+                            <a href="{% url 'edit_question' question.id %}" class="btn btn-warning btn-sm mt-2">✏️ Edit</a>
+                        
+
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+   
+   
+    
+    <div class="container mt-5">
+        <div class="card shadow p-4">
+            <h3 class="text-center mb-4">📚 Share Your Test</h3>
+    
+            <p class="text-center">Click below to open or share the test.</p>
+    
+            <!-- Test Link -->
+            <div class="text-center">
+                <a id="test-link" href="{% url 'take_exam' exam.id %}" class="btn btn-primary btn-lg" target="_blank">
+                    📝 Take Test
+                </a>
+            </div>
+    
+            <!-- Share Button -->
+            <div class="text-center mt-3">
+                <button id="share-btn" class="btn btn-success">📤 Share Test</button>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="container mt-5">
+        <div class="card shadow p-4">
+          <h3 class="text-center mb-4">📚 Exam Sheet Generated</h3>
+          <!-- Display exam sheet link after creation -->
+          <div class="text-center">
+            <a id="sheet-link" href="#" class="btn btn-info" target="_blank" style="display: none;">💾 Open Exam Sheet</a>
+          </div>
+
+          <!-- Spinner (hidden by default) -->
+      <div class="text-center my-3" id="loading-spinner" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">...</span>
+        </div>
+      </div>
+          <!-- Button to generate a unique exam sheet -->
+          <div class="text-center mt-3">
+            <button id="generate-sheet-btn" class="btn btn-success">Generate Exam Sheet</button>
+          </div>
+        </div>
+      </div>
+      
+      <script id="exam-data" type="application/json">
+        {
+          "title": "{{ exam.title|escapejs }}",
+          "subject": "{{ exam.subject|escapejs }}",
+          "topic": "{{ exam.topic|escapejs }}",
+          "type": "{{ exam.type|escapejs }}",
+          "questions": [
+            {% for question in questions %}
+            {
+              "text": "{{ question.text|escapejs }}",
+              "correct_answer": "{{ question.correct_answer|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }
+      </script>
+      
+      <script>
+        document.getElementById('generate-sheet-btn').addEventListener('click', () => {
+
+             // Show the spinner and disable the button for better feedback
+          const spinner = document.getElementById('loading-spinner');
+          spinner.style.display = 'block';
+          const generateBtn = document.getElementById('generate-sheet-btn');
+          generateBtn.disabled = true;  
+        
+          const startTime = Date.now();
+
+          // Parse the dynamic exam data from the hidden JSON script tag
+          const examDataJSON = document.getElementById('exam-data').textContent;
+          const examObj = JSON.parse(examDataJSON);
+      
+          // Create a FormData object and append dynamic values
+          const formData = new FormData();
+          formData.append('exam_title', examObj.title);
+          // Optionally append other fields
+          formData.append('exam_subject', examObj.subject);
+          formData.append('exam_topic', examObj.topic);
+          formData.append('exam_type', examObj.type);
+          // You can stringify the questions array and send it as JSON
+          formData.append('questions', JSON.stringify(examObj.questions));
+      
+          // Construct an absolute URL using window.location.origin.
+          const url = window.location.origin + '/core/create_exam_sheet/';
+      
+          fetch(url, {
+            method: 'POST',
+            body: formData,
+          })
+          .then(response => response.json())
+          .then(data => {
+            const elapsed = Date.now() - startTime;
+            const delay = Math.max(0, 12000 - elapsed);
+      
+            setTimeout(() => {
+        // Stop the spinner (hide it)
+            spinner.style.display = 'none';
+        // Re-enable the button
+            generateBtn.disabled = false;
+
+            if (data.status === 'success') {
+              // Set and display the link for the new exam sheet.
+              const sheetLinkElement = document.getElementById('sheet-link');
+              sheetLinkElement.href = data.sheet_url;
+              sheetLinkElement.style.display = 'inline-block';
+              sheetLinkElement.textContent = "💾 Open Exam Sheet";
+            } else {
+              alert('Error: ' + data.message);
+            }
+          })
+          .catch(error => 
+            console.error('Error:', error));
+
+            spinner.style.display = 'none';
+            generateBtn.disabled = false;
+            alert('An error occurred. Please try again.');
+
+            });
+        });
+      </script>
+      
+      
+
+    <script>
+        document.getElementById('share-btn').addEventListener('click', () => {
+            const testLink = document.getElementById('test-link').href;
+    
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Join the Test',
+                    text: 'Click the link below to take the test:',
+                    url: testLink
+                }).catch(error => console.error('Error sharing:', error));
+            } else {
+                alert('Sharing is not supported on this device.');
+            }
+        });
+    </script>   
+    
+    
+
+   <!-- Teacher will see/edit  exam/question paper -->
+   
+</div>  
+ {% endblock %}
+
+
+ 
