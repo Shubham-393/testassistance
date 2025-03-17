@@ -70,7 +70,7 @@ Your project is now running at:
 ---
 
 ## 📊 Project Structure
-
+```
 testassistance/
 │── core/               # Main app
 │   ├── models.py       # Database models
@@ -86,7 +86,7 @@ testassistance/
 │── requirements.txt    # Dependencies
 │── manage.py           # Django management script
 │── README.md           # Project documentation
-
+```
 
 ---
 
