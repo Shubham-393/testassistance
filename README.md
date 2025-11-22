@@ -1,5 +1,7 @@
 - **Website** : https://mohitmore.pythonanywhere.com/core/
-- **App (APK)** : [Download APK](./AI Test.apk)
+- **App (PWA)** : https://mohitmore.pythonanywhere.com/
+
+[![Download APK](https://img.shields.io/badge/Download-Android%20APK-brightgreen?logo=android)](https://github.com/Shubham-393/testassistance/raw/main/AI%20Test.apk)
 
 ---
 # 📚 Test Assistance
